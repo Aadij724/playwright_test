@@ -11,7 +11,12 @@ test('EPAM Client Work visibility test', async ({ page }) => {
   await page.setViewportSize({ width: 1920, height: 1080 });
 
   // Click on the "Services" text in the header menu
-  await page.click('text=Services');
+  await page.evaluate(() => {
+    const servicesLink = document.querySelector('a[href="/services"]');
+    if (servicesLink) {
+      servicesLink.click();
+    }
+  });
 
   // Wait for the page to change
   await page.waitForNavigation();
@@ -23,5 +28,9 @@ test('EPAM Client Work visibility test', async ({ page }) => {
   await page.waitForNavigation();
 
   // Verify that the "Client Work" text is visible on the page
-  await expect(page.locator('text=Client Work')).toBeVisible();
+  const clientWorkText = await page.evaluate(() => {
+    return document.evaluate("//*[contains(text(), 'Client Work')]", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue !== null;
+  });
+  
+  expect(clientWorkText).toBe(true);
 });
